@@ -17,6 +17,14 @@ pub(super) struct Rule {
     pub matches: fn(&str) -> Option<usize>,
 }
 
+impl FnOnce<(&str,)> for Rule {
+    type Output = Option<usize>;
+
+    extern "rust-call" fn call_once(self, args: (&str,)) -> Self::Output {
+        (self.matches)(args.0)
+    }
+}
+
 const fn rule(kind: TokenKind, matches: fn(&str) -> Option<usize>) -> Rule {
     Rule { kind, matches }
 }
@@ -32,11 +40,11 @@ macro_rules! keyword_rule {
 }
 
 const FLOAT: Rule = rule(T![float], |input| Some({
-    let whole_length = (INTEGER.matches)(input)?;
+    let whole_length = INTEGER(input)?;
 
     if input[whole_length..].chars().next()? != '.' { None? }
 
-    let fraction_length = (INTEGER.matches)(&input[whole_length + 1..])?;
+    let fraction_length = INTEGER(&input[whole_length + 1..])?;
 
     whole_length + 1 + fraction_length
 }));
