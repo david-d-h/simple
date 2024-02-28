@@ -1,7 +1,7 @@
 use crate::token::{T, TokenKind, Token};
 
 use super::Parser;
-use super::ast::{self, binop, int, float, string};
+use super::ast::{self, binop, int, float, string, ident};
 
 trait Operator {
     fn binary_binding_power(&self) -> Option<(u8, u8)>;
@@ -22,7 +22,8 @@ impl<'a, I> Parser<'a, I>
 {
     pub(super) fn parse_expression(&mut self, binding_power: u8) -> ast::Expr {
         let mut lhs = match self.peek() {
-            | lit @ (T![int] | T![float] | T![string]) => {
+            // ident is here temporarily.
+            | lit @ (T![int] | T![float] | T![string] | T![ident]) => {
                 let literal_text = {
                     let literal_token = self.next().unwrap();
                     self.text(literal_token)
@@ -42,6 +43,7 @@ impl<'a, I> Parser<'a, I>
                             literal_text,
                         ))),
                     | T![string] => string(&literal_text[1..literal_text.len() - 1]),
+                    | T![ident] => ident(literal_text),
                     | _ => unreachable!(),
                 }
             }
@@ -88,6 +90,7 @@ mod tests {
     use crate::token::{T, TokenKind};
 
     use crate::parser::{self, ast::{self, binop, int, float, string}};
+    use crate::parser::ast::ident;
 
     use crate::Unit;
 
@@ -115,6 +118,13 @@ mod tests {
         let expr = parse("\"hello\"");
 
         assert_eq!(expr, string("hello"))
+    }
+
+    #[test]
+    fn basic_ident() -> Unit {
+        let expr = parse("hallo");
+
+        assert_eq!(expr, ident("hallo"));
     }
 
     #[test]

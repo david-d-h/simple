@@ -23,6 +23,11 @@ pub(crate) fn binop(lhs: Expr, op: TokenKind, rhs: Expr) -> Expr {
 }
 
 #[inline(always)]
+pub(crate) fn ident<S: ToString>(it: S) -> Expr {
+    Expr::Ident(it.to_string())
+}
+
+#[inline(always)]
 pub(crate) const fn int(it: usize) -> Expr {
     Expr::Literal(Literal::Int(it))
 }
