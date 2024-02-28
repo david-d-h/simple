@@ -1,13 +1,22 @@
 use crate::token::{T, TokenKind, Token};
 
 use super::Parser;
-use super::ast::{self, binop, int, float, string, ident};
+use super::ast::{self, binop, int, float, string, ident, unary};
 
 trait Operator {
+    fn unary_binding_power(&self) -> u8;
+
     fn binary_binding_power(&self) -> Option<(u8, u8)>;
 }
 
 impl Operator for TokenKind {
+    fn unary_binding_power(&self) -> u8 {
+        match self {
+            T![+] | T![-] => 51,
+            _ => unreachable!("Not a unary operator: {:?}", self),
+        }
+    }
+
     fn binary_binding_power(&self) -> Option<(u8, u8)> {
         Some(match self {
             T![+] | T![-] => (1, 2),
@@ -46,14 +55,18 @@ impl<'a, I> Parser<'a, I>
                     | T![ident] => ident(literal_text),
                     | _ => unreachable!(),
                 }
-            }
+            },
             | T!['('] => {
                 self.consume(T!['(']);
                 let expr = self.parse_expression(0);
                 self.consume(T![')']);
                 expr
-            }
-            _ => todo!(),
+            },
+            | op @ (T![+] | T![-]) => unary(
+                self.consume(op),
+                self.parse_expression(op.unary_binding_power()),
+            ),
+            _ => unimplemented!(),
         };
 
 
@@ -90,7 +103,7 @@ mod tests {
     use crate::token::{T, TokenKind};
 
     use crate::parser::{self, ast::{self, binop, int, float, string}};
-    use crate::parser::ast::ident;
+    use crate::parser::ast::{ident, unary};
 
     use crate::Unit;
 
@@ -142,6 +155,24 @@ mod tests {
             int(1),
             T![+],
             binop(int(2), T![*], int(3)),
+        ));
+    }
+
+    #[test]
+    fn unary_op() -> Unit {
+        let expr = parse("-1");
+
+        assert_eq!(expr, unary(T![-], int(1)));
+    }
+
+    #[test]
+    fn unary_then_binary() -> Unit {
+        let expr = parse("-1 + 1");
+
+        assert_eq!(expr, binop(
+            unary(T![-], int(1)),
+            T![+],
+            int(1),
         ));
     }
 

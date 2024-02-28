@@ -5,6 +5,7 @@ pub(crate) enum Expr {
     Ident(String),
     Literal(Literal),
     Binary { op: TokenKind, lhs: Box<Expr>, rhs: Box<Expr> },
+    Unary { op: TokenKind, expr: Box<Expr> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -19,6 +20,13 @@ pub(crate) fn binop(lhs: Expr, op: TokenKind, rhs: Expr) -> Expr {
     Expr::Binary { op,
         lhs: Box::new(lhs),
         rhs: Box::new(rhs),
+    }
+}
+
+#[inline(always)]
+pub(crate) fn unary(op: TokenKind, expr: Expr) -> Expr {
+    Expr::Unary { op,
+        expr: Box::new(expr),
     }
 }
 

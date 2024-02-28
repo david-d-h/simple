@@ -72,7 +72,7 @@ impl<'input, I> Parser<'input, I>
         self.tokens.next()
     }
 
-    fn consume(&mut self, expected: TokenKind) {
+    fn consume(&mut self, expected: TokenKind) -> TokenKind {
         let token = self.next().expect(&format!(
             "Expected to consume `{}`, but there was no next token",
             expected,
@@ -83,6 +83,8 @@ impl<'input, I> Parser<'input, I>
             "Expected to consume `{}`, but found `{}`",
             expected, token.kind,
         );
+        
+        expected
     }
 }
 
