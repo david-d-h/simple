@@ -1,0 +1,10 @@
+[package]
+name = "simple"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.1", features = ["derive"] }
+anyhow = "1.0.80"
+thiserror = "1.0.57"
+const-str = "0.5.6"
