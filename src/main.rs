@@ -1,6 +1,5 @@
 #![allow(incomplete_features)]
 #![feature(
-    exclusive_range_pattern,
     const_closures,
     fn_traits,
     unboxed_closures,

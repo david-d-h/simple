@@ -207,7 +207,16 @@ mod tests {
 
     #[test]
     fn basic_ident() -> Unit {
-        let tokens: Vec<Token> = lexer::new("_id8").collect();
+        let tokens: Vec<Token> = lexer::new("_id9").collect();
+
+        assert_tokens!(tokens, T![emit_whitespace;
+            ident EOF
+        ]);
+    }
+
+    #[test]
+    fn alphabet_ident() -> Unit {
+        let tokens: Vec<Token> = lexer::new("_the_quick_brown_fox_jumped_over_the_lazy_dog_0123456789").collect();
 
         assert_tokens!(tokens, T![emit_whitespace;
             ident EOF

@@ -68,8 +68,8 @@ const KEYWORD_LET: Rule = keyword_rule!(let);
 const IDENTIFIER: Rule = rule(T![ident], |input| Some(input
     .char_indices()
     .take_while(|(i, c)| match c {
-        '0'..'9' if *i == 0 => false,
-        '0'..'9' | 'a'..'z' | 'A'..'Z' | '_' => true,
+        '0'..='9' if *i == 0 => false,
+        '0'..='9' | 'a'..='z' | 'A'..='Z' | '_' => true,
         _ => false,
     })
     .last()?
